@@ -1,0 +1,226 @@
+\documentclass[a4paper,10pt]{scrreprt}
+\usepackage[top=2cm,bottom=4cm]{geometry}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}  			% make sure to install cm-super package for improved PDF quality
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+%\usepackage[cm]{fullpage}			% Fullpage for now
+\usepackage{graphicx}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[font=small]{caption}
+\usepackage{subcaption}
+\usepackage{microtype}			 	% microtypographical fine-tunning
+\usepackage{setspace} 				% Provides support for setting the spacing between lines in a document.
+%\usepackage{tocbibind}				% Add bibliography/index/contents to Table of Contents.
+\usepackage{mathtools}				% enhances amsmath (no need to load amsmath)
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{bm} 					% bold math symbols including greek letters
+\usepackage{booktabs}				% professional tables (w/o vertical bars)
+\usepackage{array}					% 
+\usepackage{dcolumn} 				% align to decimal point in tables
+\usepackage[shortcuts]{extdash} 	% hyphenation of dashed words
+%\usepackage[algoruled]{algorithm2e}
+%\newcommand\mycommfont[1]{\small\ttfamily #1}
+%\SetCommentSty{mycommfont}
+\usepackage{cleveref}				% clever environment referencing
+\crefname{figure}{Fig.}{Figs.}
+\crefname{algorithm}{Alg.}{Algs.}
+\usepackage{siunitx}				% typesetting of SI units
+%\usepackage{paralist}		     	% compact lists with more options
+%\usepackage[]{todonotes}			% TODO notes
+%\presetkeys{todonotes}{backgroundcolor=orange!50}{}
+% Not sure which to use for bibliography
+%\usepackage{cite}
+%\usepackage{citesort}
+\usepackage[square, sort, numbers, authoryear]{natbib}
+\usepackage{physics}
+
+% ======================== MACROS ==========================
+% TODO and other notes
+\DeclareDocumentCommand \note 		{ m }{ \textcolor{OrangeRed}{\ \\ \emph{\textbf{(NOTE)}} #1}\ \\ }
+
+% MATH OPERATORS ===============================================================
+\DeclareMathOperator*{\argmin}{ \arg\min }
+\DeclareMathOperator{\atantwo}{\mathrm{atan2}}
+\DeclareMathOperator{\sign}{\mathrm{sign}}
+\DeclareMathOperator{\vect}{vec}
+\DeclareMathOperator{\pdeg}{pdeg}
+
+% BASIC MACROS =================================================================
+% Bold vector and matrix
+\DeclareDocumentCommand \vb{ s m } {
+	\IfBooleanTF #1 {
+		\bm{\lowercase{#2}}
+	}{
+		\bm{\mathbf{\lowercase{#2}}}
+	}
+}
+\DeclareDocumentCommand \mb { s m } {
+	\IfBooleanTF #1 {
+		\bm{\uppercase{#2}}
+	}{
+		\bm{\mathbf{\uppercase{#2}}}
+	}
+}
+% Matrix inverse and transpose
+\DeclareDocumentCommand \I		{}{ ^{-1} }
+\DeclareDocumentCommand \T		{}{ ^{\top} }
+% Diagonal matrix
+\DeclareDocumentCommand \diag 	{ l m }{ \mathrm{diag}\pqty#1{\, #2 \,} }
+% Unit matrix
+\DeclareDocumentCommand \eye 	{ }{ \mb{I} }
+% zero vector
+\DeclareDocumentCommand \vzero  { }{ \vb{0} }
+% elementary vector
+\DeclareDocumentCommand \eVec  	{ }{ \vb{e} }
+% unit vector
+\DeclareDocumentCommand \uVec  	{ }{ \vb{1} }
+% column operator
+\DeclareDocumentCommand \col  	{ m m }{ \bqty{#1}_{*#2} }
+% Integral sign and differential
+\DeclareDocumentCommand \integ 	{ O{} O{} }{ \int\limits_{#1}^{#2}\! }
+\DeclareDocumentCommand \iinteg { O{} O{} }{ \iint\limits_{#1}^{#2}\! }
+\DeclareDocumentCommand \iiinteg{ O{} O{} }{ \iiint\limits_{#1}^{#2}\! }
+\DeclareDocumentCommand \dx 	{ O{x} }{ \,\mathrm{d}#1 }
+% Expectation, variance and covariance
+\DeclareDocumentCommand \E 		{ O{} l m }{ \mathbb{E}_{#1}\bqty#2{ #3 } }
+\DeclareDocumentCommand \V 		{ O{} l m }{ \mathbb{V}_{#1}\bqty#2{ #3 } }
+\DeclareDocumentCommand \Cov 	{ O{} l m }{ \mathbb{C}_{#1}\bqty#2{ #3 } }
+% Kullback-Leibler divergence
+\DeclareDocumentCommand \KL 	{ m m }{ \mathbb{KL} \bqty{\left. #1 \,\middle\|\, #2 \right.} }
+% Density of Gaussian, Student's t, Gamma and Inverse Gamma variable
+\DeclareDocumentCommand \N 		{ s O{\vb{x}} O{\vb{0}} O{\eye} }
+{
+	\IfBooleanTF{#1}{
+		#2\sim\mathrm{N}\pqty{ #3,\, #4 }
+	}{
+		\mathrm{N}\pqty{\left. #2 \,\middle\vert\, #3,\, #4 \right.}
+	}
+}
+\DeclareDocumentCommand \pdfc	{ O{p} m m }
+{
+	#1\pqty{\left. #2 \,\middle\vert\, #3 \right.} 
+}
+
+% STATE ESTIMATION =============================================================
+% time index and final time index
+\DeclareDocumentCommand	\tind		{ }{ k }
+\DeclareDocumentCommand	\Tind		{ }{ K }
+% general nonlinear fcn, system dynamics and measurement fcn
+\DeclareDocumentCommand \nlFcn 		{ s }{ \IfBooleanTF{#1}{g}{\vb{g}} }
+\DeclareDocumentCommand \stFcn		{  }{ \vb{f} }
+\DeclareDocumentCommand \msFcn		{  }{ \vb{h} }
+% Jacobian
+\DeclareDocumentCommand \jacb 		{ m }{ \mb{g}\pqty{#1} }
+% state and measurement variables
+\DeclareDocumentCommand \stVar 		{ s }{ \IfBooleanTF{#1}{x}{\vb{x}} }
+\DeclareDocumentCommand \msVar		{ s }{ \IfBooleanTF{#1}{z}{\vb{z}} }
+% state and measurement noise
+\DeclareDocumentCommand \stnVar		{ s }{ \IfBooleanTF{#1}{q}{\vb{q}} }  % TODO rename to \snVar, \stnVar
+\DeclareDocumentCommand \msnVar		{ s }{ \IfBooleanTF{#1}{r}{\vb{r}} }
+% state and measurement noise covariances
+\DeclareDocumentCommand \stnCov		{ s }{ \IfBooleanTF{#1}{\sigma^2_q}{\mb{Q}} }
+\DeclareDocumentCommand \msnCov		{ s }{ \IfBooleanTF{#1}{\sigma^2_r}{\mb{R}} }
+% state and measurement mean, covariance and cross-covariance
+\DeclareDocumentCommand \stMean		{   }{ \vb{m}^x }
+\DeclareDocumentCommand \msMean		{   }{ \vb{m}^z }
+\DeclareDocumentCommand \stCov		{   }{ \mb{P}^x }
+\DeclareDocumentCommand \stMsCov	{   }{ \mb{P}^{xz} }
+\DeclareDocumentCommand \msStCov	{   }{ \mb{P}^{zx} }
+\DeclareDocumentCommand \msCov		{   }{ \mb{P}^z }
+% multi-state, multi-measurement
+\DeclareDocumentCommand \mstVar 	{   }{X}
+\DeclareDocumentCommand \mmsVar 	{   }{Z}
+% filtered state mean and covariance
+\DeclareDocumentCommand \filtMean 	{ O{\tind} }{ \stMean_{#1|#1} }
+\DeclareDocumentCommand \filtCov 	{ O{\tind} }{ \stCov_{#1|#1} }
+% Kalman gain
+\DeclareDocumentCommand \kGain		{  }{ \mb{K} }
+% input and output dimension
+\DeclareDocumentCommand \inDim 		{  }{ D }
+\DeclareDocumentCommand \outDim 	{  }{ E }
+% state and measurement dimension
+\DeclareDocumentCommand \stDim 		{  }{ {d_x} }
+\DeclareDocumentCommand \msDim 		{  }{ {d_z} }
+\DeclareDocumentCommand \stnDim 	{  }{ {d_q} }
+\DeclareDocumentCommand \msnDim		{  }{ {d_r} }
+% general decoupled input variable, input variable, output variable
+\DeclareDocumentCommand \inVar 		{ s }{ \IfBooleanTF{#1}{{x}}{{\vb{x}}} }
+\DeclareDocumentCommand \inVarU		{ s }{ \IfBooleanTF{#1}{{\xi}}{{\vb{\xi}}} }
+\DeclareDocumentCommand \inVarC		{ s }{ \IfBooleanTF{#1}{{\eta}}{{\vb{\eta}}} }
+\DeclareDocumentCommand \outVar 	{ s }{ \IfBooleanTF{#1}{y}{\vb{y}} }
+% input mean, covariance, cov. square-root
+\DeclareDocumentCommand \inMean 	{  }{ \vb{m} }
+\DeclareDocumentCommand \inCov 		{  }{ \mb{P} }
+\DeclareDocumentCommand \inCovFct	{  }{ \mb{L} }
+% output mean, covariance and cross-covariance
+\DeclareDocumentCommand \outMean 	{  }{ \vb{\mu} }
+\DeclareDocumentCommand \outCov 	{  }{ \mb{\Pi} }
+\DeclareDocumentCommand \inoutCov 	{  }{ \mb{C} }
+% approximate output mean, covariance and cross-covariance
+\DeclareDocumentCommand \outMeanApp	{  }{ \vb{\mu}_{\mathrm{A}} }
+\DeclareDocumentCommand \outCovApp 	{  }{ \mb{\Pi}_{\mathrm{A}} }
+\DeclareDocumentCommand \inoutCovApp{  }{ \mb{C}_{\mathrm{A}} }
+% set of reals, naturals, dataset, state space, measurement space
+\DeclareDocumentCommand \R 			{  }{ \mathbb{R} }
+\DeclareDocumentCommand \Nat		{  }{ \mathbb{N} }
+\DeclareDocumentCommand \D 			{  }{ \mathcal{D} }
+\DeclareDocumentCommand \Cinf		{  }{ \mathcal{C}^{\infty} }
+\DeclareDocumentCommand \stSp		{  }{ \mathcal{X} }
+\DeclareDocumentCommand \msSp		{  }{ \mathcal{Z} }
+% degrees of freedom parameter: arbitrary, TPQ related and a Student update related
+\DeclareDocumentCommand \inDof 		{  }{ \nu }
+\DeclareDocumentCommand \nlfDof 	{  }{ \nu_{\nlFcn*} }
+\DeclareDocumentCommand \stDof 		{  }{ \nu^x }
+\DeclareDocumentCommand \msNoiseDof	{  }{ \nu^r }
+\DeclareDocumentCommand \stNoiseDof	{  }{ \nu^q }
+\DeclareDocumentCommand \filtDof 	{ O{\tind} }{ \stDof_{#1|#1} }
+\DeclareDocumentCommand \fixDof 	{ O{\tind} }{ \nu^* }
+
+
+
+% ======================== THEOREMS ========================
+\theoremstyle{theorem}
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{cor}{Corollary}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{alg}{Algorithm}
+% ========================================================
+
+
+% Title Page
+\title{Local Filtering: A Unified Conceptual Framework}
+\author{Jakub Prüher}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+	This note seeks to find a conceptual clarity and high-level overview of local filters, including Gaussian filters, such as the extended Kalman filter (KF) and the unscented KF, as well as the Student's t-filters.
+	Kalman filter is derived in the optimization and the Bayesian frameworks.
+	The goal is to gain high-level perspective and name each component of the filter using a proper terminology, which hopefully results in less abuse of terminology.
+	Words matter, use them properly, not carelessly!
+	Some attempts have already been made by \cite{Deisenroth2011}, but he didn't focus on defining clear terminology.
+\end{abstract}
+
+
+derivation of KF both ways, statistical linear regression perspective (might be tied up with the optimization/moment perspective), moment/Bayesian formulation, block diagrams,
+
+\section{Moment perspective}
+moments, moment transforms, sigma-point rule, Kalman filter
+
+\section{Bayesian perspective}
+statistics, statistic transforms, quadrature, probability density functions, Gaussian filter, Studentian filter
+
+
+
+
+
+\bibliographystyle{plainnat}
+\bibliography{refdb}
+\end{document}          
